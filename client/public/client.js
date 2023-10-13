@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Insert rows into the database
     insertButton.addEventListener("click", function () {
-        sendRequest("POST", "http://Server2/api/v1/sql/insert", {}, function (error, response) {
+        sendRequest("POST", "http://localhost:3000/api/v1/sql/insert", {}, function (error, response) {
             if (error) {
                 responseDiv.innerHTML = "Error: " + error.message;
             } else {
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
     executeButton.addEventListener("click", function () {
         const sqlQuery = queryInput.value;
         const method = sqlQuery.trim().toLowerCase().startsWith("select") ? "GET" : "POST";
-        const url = "http://Server2/api/v1/sql/" + encodeURIComponent(sqlQuery);
+        const url = "http://localhost:3000/api/v1/sql/" + encodeURIComponent(sqlQuery);
 
         sendRequest(method, url, {}, function (error, response) {
             if (error) {

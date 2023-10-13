@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 const database = require("./MySQLdatabaseconnection.js");
 
 async function createPool() {
@@ -22,64 +22,56 @@ async function createPool() {
 
 createPool();
 
+// Create an HTTP server
 const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
+    const reqUrl = url.parse(req.url, true);
 
-    if (req.url === '/') {
-        // Serve the HTML file
-        const filePath = path.join(__dirname, 'index.html');
-        fs.readFile(filePath, (err, data) => {
+    if (req.method === "POST" && reqUrl.pathname === "/api/v1/sql/insert") {
+        // Handle INSERT operation
+        const insertSQL = "INSERT INTO patient (name, age, gender, diagnosis) VALUES (?, ?, ?, ?)";
+        const values = ["Patient Name", 30, "Male", "Some Diagnosis"];
+
+        dbConnection.query(insertSQL, values, (err, results) => {
             if (err) {
-                res.writeHead(404, {
-                    'Content-Type': 'text/html'
+                res.writeHead(500, {
+                    "Content-Type": "text/plain"
                 });
-                res.end('File not found');
+                res.end("Error inserting rows: " + err.message);
             } else {
                 res.writeHead(200, {
-                    'Content-Type': 'text/html'
+                    "Content-Type": "application/json"
                 });
-                res.end(data);
+                res.end(JSON.stringify({
+                    insertedRows: results.affectedRows
+                }));
             }
         });
-    } else if (parsedUrl.pathname === '/insert') {
-        // Handle the INSERT operation
-        insertPatientsData()
-            .then(() => {
-                res.writeHead(200, {
-                    'Content-Type': 'text/plain'
-                });
-                res.end('Data inserted successfully.');
-            })
-            .catch((error) => {
+    } else if (req.method === "GET" && reqUrl.pathname === "/api/v1/sql/") {
+        // Handle SELECT operation
+        const query = reqUrl.query.query;
+
+        dbConnection.query(query, (err, results) => {
+            if (err) {
                 res.writeHead(500, {
-                    'Content-Type': 'text/plain'
+                    "Content-Type": "text/plain"
                 });
-                res.end(`Error: ${error.message}`);
-            });
-    } else if (parsedUrl.pathname === '/execute') {
-        // Handle SELECT or other query operations
-        const query = req.method === 'POST' ? parsedUrl.query.query : parsedUrl.query;
-        executeQuery(query)
-            .then((results) => {
+                res.end("Error executing query: " + err.message);
+            } else {
                 res.writeHead(200, {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 });
                 res.end(JSON.stringify(results));
-            })
-            .catch((error) => {
-                res.writeHead(500, {
-                    'Content-Type': 'text/plain'
-                });
-                res.end(`Error: ${error.message}`);
-            });
+            }
+        });
     } else {
         res.writeHead(404, {
-            'Content-Type': 'text/html'
+            "Content-Type": "text/plain"
         });
-        res.end('Invalid URL');
+        res.end("Not Found");
     }
 });
 
+// Listen on a specific port
 server.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Server is listening on port ${port}`);
 });
