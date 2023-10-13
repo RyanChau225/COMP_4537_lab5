@@ -6,12 +6,10 @@ const path = require('path');
 require('dotenv').config();
 const cors = require("cors"); // Require the 'cors' package
 
-
 const port = process.env.PORT || 5000;
 const database = require("./MySQLdatabaseconnection.js");
 
 async function createPool() {
-
     // Create the 'patients' table if it doesn't exist
     await database.query(`
         CREATE TABLE IF NOT EXISTS patients (
@@ -24,40 +22,51 @@ async function createPool() {
 
 createPool();
 
-
-
-
 // Create an HTTP server
 const server = http.createServer((req, res) => {
-
     // Use the cors middleware to enable CORS
     cors()(req, res, () => {
         res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-
         const reqUrl = url.parse(req.url, true);
 
         if (req.method === "POST" && reqUrl.pathname === "/api/v1/sql/insert") {
-            // Handle INSERT operation
-            const insertSQL = "INSERT INTO patients (name, age) VALUES (?, ?, )";
-            const values = ["Patient Name", 30];
 
-            dbConnection.query(insertSQL, values, (err, results) => {
-                if (err) {
-                    res.writeHead(500, {
-                        "Content-Type": "text/plain"
-                    });
-                    res.end("Error inserting rows: " + err.message);
-                } else {
-                    res.writeHead(200, {
-                        "Content-Type": "application/json"
-                    });
-                    res.end(JSON.stringify({
-                        insertedRows: results.affectedRows
-                    }));
-                }
+            // Read data from the request body
+            let body = ''; // Initialize 'body' variable
+
+            req.on('data', (chunk) => {
+                body += chunk;
+            });
+
+            req.on('end', () => {
+                // Parse the JSON data from the request body
+                const data = JSON.parse(body);
+                console.log("DATA" + data);
+
+                const name = data.name;
+                const age = data.age;
+
+                const insertSQL = "INSERT INTO patients (name, age) VALUES (?, ?)";
+                const values = [name, age];
+
+                database.query(insertSQL, values, (err, results) => {
+                    if (err) {
+                        res.writeHead(500, {
+                            "Content-Type": "text/plain"
+                        });
+                        res.end("Error inserting rows: " + err.message);
+                    } else {
+                        res.writeHead(200, {
+                            "Content-Type": "application/json"
+                        });
+                        res.end(JSON.stringify({
+                            insertedRows: results.affectedRows
+                        }));
+                    }
+                });
             });
         } else if (req.method === "GET" && reqUrl.pathname === "/api/v1/sql/") {
             // Handle SELECT operation

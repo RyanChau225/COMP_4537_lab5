@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const insertButton = document.getElementById("insertButton");
     const executeButton = document.getElementById("executeButton");
     const queryInput = document.getElementById("queryInput");
     const insertResponseDiv = document.getElementById("insertResponse");
@@ -7,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Function to make an HTTP request
     function sendRequest(method, url, data, callback, responseDiv) {
-        console.log(url);
+        console.log("MY DATA" + data);
         const xhr = new XMLHttpRequest();
         xhr.open(method, url);
         xhr.setRequestHeader("Content-Type", "application/json");
@@ -21,30 +20,44 @@ document.addEventListener("DOMContentLoaded", function () {
         xhr.send(JSON.stringify(data));
     }
 
-    // Insert rows into the database
-    insertButton.addEventListener("click", function () {
-        sendRequest("POST", "http://localhost:5000/api/v1/sql/insert", {}, function (error, response, responseDiv) {
-            if (error) {
-                responseDiv.innerHTML = "Error: " + error.message;
-            } else {
-                responseDiv.innerHTML = "Rows inserted: " + response.insertedRows;
-            }
-        }, insertResponseDiv);
-    });
 
     // Execute SQL query
     executeButton.addEventListener("click", function () {
         const sqlQuery = queryInput.value;
-        const method = sqlQuery.trim().toLowerCase().startsWith("select") ? "GET" : "POST";
-        const url = "http://localhost:5000/api/v1/sql?query=" + encodeURIComponent(sqlQuery);
-        console.log(url);
 
-        sendRequest(method, url, {}, function (error, response, responseDiv) {
-            if (error) {
-                responseDiv.innerHTML = "Error: " + error.message;
+        // Remove the parentheses and split by comma
+        const parts = sqlQuery.replace(/[()]/g, "").split(",");
+
+        if (parts.length === 2) {
+            const name = parts[0].trim();
+            const age = parseInt(parts[1].trim());
+
+            if (name && !isNaN(age)) {
+                const method = "POST";
+                const url = "http://localhost:5000/api/v1/sql/insert";
+                console.log("METHOD: " + method);
+
+                const data = {
+                    name: name,
+                    age: age
+                };
+
+                console.log("DATA" + data)
+
+                sendRequest(method, url, data, function (error, response, responseDiv) {
+                    if (error) {
+                        responseDiv.innerHTML = "Error: " + error.message;
+                    } else {
+                        responseDiv.innerHTML = JSON.stringify(response, null, 2);
+                    }
+                }, queryResponseDiv);
             } else {
-                responseDiv.innerHTML = JSON.stringify(response, null, 2);
+                queryResponseDiv.innerHTML = "Invalid 'name' or 'age' values. Make sure 'name' is not empty, and 'age' is a valid number.";
             }
-        }, queryResponseDiv);
+        } else {
+            queryResponseDiv.innerHTML = "Invalid format. Use (\"name\", age)";
+        }
     });
+
+
 });
