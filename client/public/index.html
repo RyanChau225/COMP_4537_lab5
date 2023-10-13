@@ -1,17 +1,27 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Patient Database</title>
+  <title>Patient Database</title>
 </head>
+
 <body>
-    <h1>Patient Database</h1>
+  <h1>Patient Database</h1>
 
-   
-    <h2>Execute Query</h2>
-    <textarea id="queryInput" rows="4" cols="50"></textarea>
-    <button id="executeButton">Execute Query</button>
-    <p id="queryResponse"></p>
 
-    <script src="client.js"></script>
+  <h2>Execute Query</h2>
+  <textarea id="queryInput" rows="4" cols="50"></textarea>
+  <button id="executeButton">Execute Query</button>
+  <p id="queryResponse"></p>
+  <h2>Insert Patients</h2>
+  <button id="insertPatientsButton">Insert Default Patients</button>
+  <p id="insertPatientsResponse"></p>
+
+  <h2>Fetch and Display Patients</h2>
+  <button id="fetchPatientsButton">Fetch Patients</button>
+  <div id="patientList"></div>
+
+  <script src="client.js"></script>
 </body>
+
 </html>

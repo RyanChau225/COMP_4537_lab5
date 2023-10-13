@@ -10,15 +10,16 @@ const port = process.env.PORT || 5000;
 const database = require("./MySQLdatabaseconnection.js");
 
 async function createPool() {
-    // Create the 'patients' table if it doesn't exist
-    await database.query(`
-        CREATE TABLE IF NOT EXISTS patients (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            age INT NOT NULL
-        ) ENGINE=InnoDB;
-    `);
+  // Create the 'patients' table if it doesn't exist
+  await database.query(`
+      CREATE TABLE IF NOT EXISTS patients (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          dateofbirth DATE NOT NULL
+      ) ENGINE=InnoDB;
+  `);
 }
+
 
 createPool();
 
@@ -42,49 +43,50 @@ const server = http.createServer((req, res) => {
             });
 
             req.on('end', () => {
-                // Parse the JSON data from the request body
-                const data = JSON.parse(body);
-                console.log("DATA" + data);
-
-                const name = data.name;
-                const age = data.age;
-
-                const insertSQL = "INSERT INTO patients (name, age) VALUES (?, ?)";
-                const values = [name, age];
-
-                database.query(insertSQL, values, (err, results) => {
-                    if (err) {
-                        res.writeHead(500, {
-                            "Content-Type": "text/plain"
-                        });
-                        res.end("Error inserting rows: " + err.message);
-                    } else {
-                        res.writeHead(200, {
-                            "Content-Type": "application/json"
-                        });
-                        res.end(JSON.stringify({
-                            insertedRows: results.affectedRows
-                        }));
-                    }
-                });
-            });
-        } else if (req.method === "GET" && reqUrl.pathname === "/api/v1/sql/") {
-            // Handle SELECT operation
-            const query = reqUrl.query.query;
-
-            dbConnection.query(query, (err, results) => {
-                if (err) {
-                    res.writeHead(500, {
-                        "Content-Type": "text/plain"
-                    });
-                    res.end("Error executing query: " + err.message);
-                } else {
-                    res.writeHead(200, {
-                        "Content-Type": "application/json"
-                    });
-                    res.end(JSON.stringify(results));
-                }
-            });
+              // Parse the JSON data from the request body
+              const data = JSON.parse(body);
+              console.log("DATA", data);
+          
+              const name = data.name;
+              const dateofbirth = data.dateofbirth;  // Update this line
+          
+              const insertSQL = "INSERT INTO patients (name, dateofbirth) VALUES (?, ?)";  // Update this line
+              const values = [name, dateofbirth];  // Update this line
+          
+              database.query(insertSQL, values, (err, results) => {
+                  if (err) {
+                      res.writeHead(500, {
+                          "Content-Type": "text/plain"
+                      });
+                      res.end("Error inserting rows: " + err.message);
+                  } else {
+                      res.writeHead(200, {
+                          "Content-Type": "application/json"
+                      });
+                      res.end(JSON.stringify({
+                          insertedRows: results.affectedRows
+                      }));
+                  }
+              });
+          });
+          
+        } else if (req.method === "GET" && reqUrl.pathname.startsWith("/api/v1/sql/select")) {
+          // Handle SELECT operation
+          const query = reqUrl.query.query;
+      
+          database.query(query)
+              .then(results => {
+                  res.writeHead(200, {
+                      "Content-Type": "application/json"
+                  });
+                  res.end(JSON.stringify(results[0])); // results is an array where the first element is the rows
+              })
+              .catch(err => {
+                  res.writeHead(500, {
+                      "Content-Type": "text/plain"
+                  });
+                  res.end("Error executing query: " + err.message);
+              });
         } else {
             res.writeHead(404, {
                 "Content-Type": "text/plain"
