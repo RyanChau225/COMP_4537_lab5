@@ -1,57 +1,85 @@
 const http = require('http');
 const url = require('url');
-const mysql = require('mysql2');
-const server = http.createServer(handleRequest);
+const mysql = require('mysql2/promise'); // Use 'mysql2/promise' for asynchronous database operations
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
-const dbConfig = {
-    host: 'localhost',
-    user: 'root', // Change to your MySQL username
-    password: 'password', // Change to your MySQL password
-    database: 'patientsdb',
-};
+const port = process.env.PORT || 3000;
+const database = require("./MySQLdatabaseconnection.js");
 
-const pool = mysql.createPool(dbConfig);
+async function createPool() {
 
-async function handleRequest(req, res) {
-    const {
-        pathname,
-        query
-    } = url.parse(req.url, true);
-    res.setHeader('Content-Type', 'text/plain');
-
-    if (pathname === '/insert') {
-        // Handle the INSERT operation here
-        // You can write your SQL INSERT code and execute it using the MySQL pool.
-        // Be cautious of SQL injection. You should properly escape input values.
-        // Send a success response or error response back to the client.
-
-    } else if (pathname === '/execute') {
-        // Handle SELECT or other query operations here
-        // You can write your SQL SELECT code and execute it using the MySQL pool.
-        // Send the results back to the client.
-        try {
-            const result = await executeQuery(query.query);
-            res.end(result);
-        } catch (error) {
-            res.end(`Error: ${error.message}`);
-        }
-    } else {
-        res.end('Invalid URL');
-    }
+    // Create the 'patients' table if it doesn't exist
+    await database.query(`
+        CREATE TABLE IF NOT EXISTS patients (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            age INT NOT NULL
+        ) ENGINE=InnoDB;
+    `);
 }
 
-function executeQuery(query) {
-    return new Promise((resolve, reject) => {
-        pool.query(query, (error, results) => {
-            if (error) {
-                reject(error);
+createPool();
+
+const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+
+    if (req.url === '/') {
+        // Serve the HTML file
+        const filePath = path.join(__dirname, 'index.html');
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(404, {
+                    'Content-Type': 'text/html'
+                });
+                res.end('File not found');
             } else {
-                resolve(JSON.stringify(results));
+                res.writeHead(200, {
+                    'Content-Type': 'text/html'
+                });
+                res.end(data);
             }
         });
-    });
-}
+    } else if (parsedUrl.pathname === '/insert') {
+        // Handle the INSERT operation
+        insertPatientsData()
+            .then(() => {
+                res.writeHead(200, {
+                    'Content-Type': 'text/plain'
+                });
+                res.end('Data inserted successfully.');
+            })
+            .catch((error) => {
+                res.writeHead(500, {
+                    'Content-Type': 'text/plain'
+                });
+                res.end(`Error: ${error.message}`);
+            });
+    } else if (parsedUrl.pathname === '/execute') {
+        // Handle SELECT or other query operations
+        const query = req.method === 'POST' ? parsedUrl.query.query : parsedUrl.query;
+        executeQuery(query)
+            .then((results) => {
+                res.writeHead(200, {
+                    'Content-Type': 'application/json'
+                });
+                res.end(JSON.stringify(results));
+            })
+            .catch((error) => {
+                res.writeHead(500, {
+                    'Content-Type': 'text/plain'
+                });
+                res.end(`Error: ${error.message}`);
+            });
+    } else {
+        res.writeHead(404, {
+            'Content-Type': 'text/html'
+        });
+        res.end('Invalid URL');
+    }
+});
 
-server.listen(8080, () => {
-    console.log('API Server is running on port 8080');
+server.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
