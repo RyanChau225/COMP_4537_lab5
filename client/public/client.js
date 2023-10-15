@@ -1,6 +1,6 @@
   // Function to make an HTTP request
   function sendRequest(method, url, data, callback, responseDiv) {
-      console.log("MY DATA" + data);
+      console.log("MY DATA" + data.name + data.age);
       const xhr = new XMLHttpRequest();
       xhr.open(method, url);
       xhr.setRequestHeader("Content-Type", "application/json");
