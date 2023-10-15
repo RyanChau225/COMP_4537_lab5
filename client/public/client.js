@@ -26,20 +26,7 @@
       executeButton.addEventListener("click", function () {
           const sqlQuery = queryInput.value.trim().toUpperCase();
 
-          if (sqlQuery.startsWith('INSERT')) {
-              // Handle the INSERT operation
-
-              sendRequest('POST', 'https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/insert', {
-                  query: sqlQuery
-              }, function (error, response, responseDiv) {
-                  if (error) {
-                      responseDiv.innerHTML = "Error: " + error.message;
-                  } else {
-                      responseDiv.innerHTML = JSON.stringify(response, null, 2);
-                  }
-              }, queryResponseDiv);
-
-          } else if (sqlQuery.startsWith('SELECT')) {
+          if (sqlQuery.startsWith('SELECT')) {
               // Handle the SELECT operation
 
               sendRequest('GET', `https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
