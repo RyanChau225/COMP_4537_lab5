@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (sqlQuery.startsWith('INSERT')) {
           // Handle the INSERT operation
           
-          sendRequest('POST', 'http://localhost:5000/api/v1/sql/insert', { query: sqlQuery }, function (error, response, responseDiv) {
+          sendRequest('POST', 'https://yfhnpdljxr.us14.qoddiapp.com/api/v1/sql/insert', { query: sqlQuery }, function (error, response, responseDiv) {
               if (error) {
                   responseDiv.innerHTML = "Error: " + error.message;
               } else {
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else if (sqlQuery.startsWith('SELECT')) {
           // Handle the SELECT operation
           
-          sendRequest('GET', `http://localhost:5000/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
+          sendRequest('GET', `https://yfhnpdljxr.us14.qoddiapp.com/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
               if (error) {
                   responseDiv.innerHTML = "Error: " + error.message;
               } else {
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
               if (name && !isNaN(age)) {
                   const method = "POST";
-                  const url = "http://localhost:5000/api/v1/sql/insert";
+                  const url = "https://yfhnpdljxr.us14.qoddiapp.com/api/v1/sql/insert";
                   console.log("METHOD: " + method);
 
                   const data = {
@@ -96,7 +96,7 @@ insertPatientsButton.addEventListener("click", function() {
     ];
 
     defaultPatients.forEach(patient => {
-        sendRequest('POST', 'http://localhost:5000/api/v1/sql/insert', patient, function (error, response, responseDiv) {
+        sendRequest('POST', 'https://yfhnpdljxr.us14.qoddiapp.com/api/v1/sql/insert', patient, function (error, response, responseDiv) {
             if (error) {
                 responseDiv.innerHTML += "Error inserting " + patient.name + ": " + error.message + "<br/>";
             } else {
@@ -111,7 +111,7 @@ const fetchPatientsButton = document.getElementById("fetchPatientsButton");
 const patientListDiv = document.getElementById("patientList");
 
 fetchPatientsButton.addEventListener("click", function() {
-    sendRequest('GET', 'http://localhost:5000/api/v1/sql/select?query=SELECT * FROM patients', null, function (error, response, responseDiv) {
+    sendRequest('GET', 'https://yfhnpdljxr.us14.qoddiapp.com/api/v1/sql/select?query=SELECT * FROM patients', null, function (error, response, responseDiv) {
         if (error) {
             responseDiv.innerHTML = "Error fetching patients: " + error.message;
         } else {
