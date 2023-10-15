@@ -1,8 +1,8 @@
 const http = require('http');
 const url = require('url');
-
+const mysql = require('mysql2/promise'); // Use 'mysql2/promise' for asynchronous database operations
 const fs = require('fs');
-
+const path = require('path');
 require('dotenv').config();
 const cors = require("cors"); // Require the 'cors' package
 
