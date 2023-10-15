@@ -48,10 +48,10 @@ const server = http.createServer((req, res) => {
               console.log("DATA", data);
           
               const name = data.name;
-              const dateofbirth = data.dateofbirth;  // Update this line
+              const dateofbirth = data.dateofbirth;  
           
-              const insertSQL = "INSERT INTO patients (name, dateofbirth) VALUES (?, ?)";  // Update this line
-              const values = [name, dateofbirth];  // Update this line
+              const insertSQL = "INSERT INTO patients (name, dateofbirth) VALUES (?, ?)";  
+              const values = [name, dateofbirth]; 
           
               database.query(insertSQL, values, (err, results) => {
                   if (err) {
@@ -71,7 +71,6 @@ const server = http.createServer((req, res) => {
           });
           
         } else if (req.method === "GET" && reqUrl.pathname.startsWith("/api/v1/sql/select")) {
-          // Handle SELECT operation
           const query = reqUrl.query.query;
       
           database.query(query)
@@ -79,7 +78,7 @@ const server = http.createServer((req, res) => {
                   res.writeHead(200, {
                       "Content-Type": "application/json"
                   });
-                  res.end(JSON.stringify(results[0])); // results is an array where the first element is the rows
+                  res.end(JSON.stringify(results[0])); 
               })
               .catch(err => {
                   res.writeHead(500, {
