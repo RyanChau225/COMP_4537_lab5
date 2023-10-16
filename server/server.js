@@ -24,7 +24,7 @@ async function createPool() {
 createPool();
 
 const corsOptions = {
-  origin: 'https://arch-lab6-client-dfdf06ab41f4.herokuapp.com',
+  origin: '*',
   methods: 'GET,POST',
   allowedHeaders: 'Content-Type'
 };
