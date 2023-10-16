@@ -75,27 +75,31 @@ const server = http.createServer((req, res) => {
             });
 
         } else if (req.method === "GET" && reqUrl.pathname.startsWith("/api/v1/sql/select")) {
-            const query = reqUrl.query.query;
-
-            database.query(query)
-                .then(results => {
-                    res.writeHead(200, {
-                        "Content-Type": "application/json"
-                    });
-                    res.end(JSON.stringify(results[0]));
-                })
-                .catch(err => {
-                    res.writeHead(500, {
-                        "Content-Type": "text/plain"
-                    });
-                    res.end("Error executing query: " + err.message);
-                });
-        } else {
-            res.writeHead(404, {
-                "Content-Type": "text/plain"
-            });
-            res.end("Not Found");
-        }
+          const query = reqUrl.query.query;
+          
+          if (!query) {
+              res.writeHead(400, {
+                  "Content-Type": "text/plain"
+              });
+              return res.end("Query parameter missing or invalid");
+          }
+      
+          database.query(query)
+              .then(results => {
+                  res.writeHead(200, {
+                      "Content-Type": "application/json"
+                  });
+                  res.end(JSON.stringify(results[0]));
+              })
+              .catch(err => {
+                  console.error("Database error:", err); // Log the error to the console for debugging
+                  res.writeHead(500, {
+                      "Content-Type": "text/plain"
+                  });
+                  res.end("Error executing query: " + err.message);
+              });
+      }
+      
     });
 });
 
