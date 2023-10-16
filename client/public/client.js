@@ -1,18 +1,28 @@
   // Function to make an HTTP request
-  function sendRequest(method, url, data, callback, responseDiv) {
-      console.log("MY DATA" + data.name + data.dateofbirth);
-      const xhr = new XMLHttpRequest();
-      xhr.open(method, url);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.onload = function () {
-          if (xhr.status === 200) {
-              callback(null, JSON.parse(xhr.responseText), responseDiv);
-          } else {
-              callback(new Error("Request failed"), null, responseDiv);
-          }
-      };
-      xhr.send(JSON.stringify(data));
+// Function to make an HTTP request
+function sendRequest(method, url, data, callback, responseDiv) {
+  if (data) {
+    console.log("MY DATA", data);
   }
+
+  const xhr = new XMLHttpRequest();
+  xhr.open(method, url);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      callback(null, JSON.parse(xhr.responseText), responseDiv);
+    } else {
+      callback(new Error("Request failed"), null, responseDiv);
+    }
+  };
+
+  if (data) {
+    xhr.send(JSON.stringify(data));
+  } else {
+    xhr.send();
+  }
+}
+
 
   document.addEventListener("DOMContentLoaded", function () {
       const executeButton = document.getElementById("executeButton");
@@ -27,7 +37,7 @@
     
         if (sqlQuery.startsWith('SELECT')) {
             // Handle the SELECT operation
-            sendRequest('GET', `https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
+            sendRequest('GET', `http://ceskrfglxz.us14.qoddiapp.com/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
                 if (error) {
                     responseDiv.innerHTML = "Error: " + error.message;
                 } else {
@@ -35,16 +45,16 @@
                 }
             }, queryResponseDiv);
         } else {
-            // Assuming the format for INSERT is ("name", "dateofbirth")
-            const parts = sqlQuery.replace(/[()]/g, "").split(",");
+            // Assuming the format for INSERT is ("name", "dateofbirth") or ('name', 'dateofbirth')
+            const parts = sqlQuery.replace(/INSERT INTO patients \(name, dateofbirth\) VALUES /i, "").replace(/[()]/g, "").split(",");
             if (parts.length === 2) {
-                const name = parts[0].trim().replace(/"/g, ""); // Removing quotes
-                const dateofbirth = parts[1].trim().replace(/"/g, "");
+                const name = parts[0].trim().replace(/["']/g, ""); // Remove both double and single quotes
+                const dateofbirth = parts[1].trim().replace(/["']/g, ""); // Remove both double and single quotes
     
                 if (name && dateofbirth) {
                     const method = "POST";
-                    const url = "https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/insert";
-                    
+                    const url = "http://ceskrfglxz.us14.qoddiapp.com/api/v1/sql/insert";
+    
                     const data = {
                         name: name,
                         dateofbirth: dateofbirth
@@ -63,10 +73,11 @@
                     queryResponseDiv.innerHTML = "Invalid 'name' or 'dateofbirth' values.";
                 }
             } else {
-                queryResponseDiv.innerHTML = "Invalid format. Use (\"name\", \"dateofbirth\")";
+                queryResponseDiv.innerHTML = "Invalid format. Use (\"name\", \"dateofbirth\") or ('name', 'dateofbirth')";
             }
         }
-      });    
+    });
+    
     });
     
 
@@ -93,7 +104,7 @@
       ];
 
       defaultPatients.forEach(patient => {
-          sendRequest('POST', 'https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/insert', patient, function (error, response, responseDiv) {
+          sendRequest('POST', 'http://ceskrfglxz.us14.qoddiapp.com/api/v1/sql/insert', patient, function (error, response, responseDiv) {
               if (error) {
                   responseDiv.innerHTML += "Error inserting " + patient.name + ": " + error.message + "<br/>";
               } else {
@@ -108,7 +119,7 @@
   const patientListDiv = document.getElementById("patientList");
 
   fetchPatientsButton.addEventListener("click", function () {
-      sendRequest('GET', 'https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/select?query=SELECT * FROM patients', null, function (error, response, responseDiv) {
+      sendRequest('GET', 'http://ceskrfglxz.us14.qoddiapp.com/api/v1/sql/select?query=SELECT * FROM patients', null, function (error, response, responseDiv) {
           if (error) {
               responseDiv.innerHTML = "Error fetching patients: " + error.message;
           } else {
