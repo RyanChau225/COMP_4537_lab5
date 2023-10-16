@@ -37,7 +37,7 @@ function sendRequest(method, url, data, callback, responseDiv) {
     
         if (sqlQuery.startsWith('SELECT')) {
             // Handle the SELECT operation
-            sendRequest('GET', `http://ceskrfglxz.us14.qoddiapp.com/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
+            sendRequest('GET', `https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
                 if (error) {
                     responseDiv.innerHTML = "Error: " + error.message;
                 } else {
@@ -53,7 +53,7 @@ function sendRequest(method, url, data, callback, responseDiv) {
     
                 if (name && dateofbirth) {
                     const method = "POST";
-                    const url = "http://ceskrfglxz.us14.qoddiapp.com/api/v1/sql/insert";
+                    const url = "https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/insert";
     
                     const data = {
                         name: name,
@@ -104,7 +104,7 @@ function sendRequest(method, url, data, callback, responseDiv) {
       ];
 
       defaultPatients.forEach(patient => {
-          sendRequest('POST', 'http://ceskrfglxz.us14.qoddiapp.com/api/v1/sql/insert', patient, function (error, response, responseDiv) {
+          sendRequest('POST', 'https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/insert', patient, function (error, response, responseDiv) {
               if (error) {
                   responseDiv.innerHTML += "Error inserting " + patient.name + ": " + error.message + "<br/>";
               } else {
@@ -119,7 +119,7 @@ function sendRequest(method, url, data, callback, responseDiv) {
   const patientListDiv = document.getElementById("patientList");
 
   fetchPatientsButton.addEventListener("click", function () {
-      sendRequest('GET', 'http://ceskrfglxz.us14.qoddiapp.com/api/v1/sql/select?query=SELECT * FROM patients', null, function (error, response, responseDiv) {
+      sendRequest('GET', 'https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/select?query=SELECT * FROM patients', null, function (error, response, responseDiv) {
           if (error) {
               responseDiv.innerHTML = "Error fetching patients: " + error.message;
           } else {
