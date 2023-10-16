@@ -24,61 +24,58 @@ function sendRequest(method, url, data, callback, responseDiv) {
 }
 
 
-  document.addEventListener("DOMContentLoaded", function () {
-      const executeButton = document.getElementById("executeButton");
-      const queryInput = document.getElementById("queryInput");
-      const insertResponseDiv = document.getElementById("insertResponse");
-      const queryResponseDiv = document.getElementById("queryResponse");
+document.addEventListener("DOMContentLoaded", function () {
+  const executeButton = document.getElementById("executeButton");
+  const queryInput = document.getElementById("queryInput");
+  const insertResponseDiv = document.getElementById("insertResponse");
+  const queryResponseDiv = document.getElementById("queryResponse");
 
+  executeButton.addEventListener("click", function () {
+      const sqlQuery = queryInput.value.trim(); // Keep the original case of the query
 
+      if (sqlQuery.toUpperCase().startsWith('SELECT')) { // Check in a case-insensitive manner
+          // Handle the SELECT operation
+          sendRequest('GET', `https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
+              if (error) {
+                  responseDiv.innerHTML = "Error: " + error.message;
+              } else {
+                  responseDiv.innerHTML = JSON.stringify(response, null, 2);
+              }
+          }, queryResponseDiv);
+      } else {
+          // Assuming the format for INSERT is ("name", "dateofbirth") or ('name', 'dateofbirth')
+          const parts = sqlQuery.replace(/INSERT INTO patients \(name, dateofbirth\) VALUES /i, "").replace(/[()]/g, "").split(",");
+          if (parts.length === 2) {
+              const name = parts[0].trim().replace(/["']/g, ""); // Remove both double and single quotes
+              const dateofbirth = parts[1].trim().replace(/["']/g, ""); // Remove both double and single quotes
 
-      executeButton.addEventListener("click", function () {
-        const sqlQuery = queryInput.value.trim().toUpperCase();
-    
-        if (sqlQuery.startsWith('SELECT')) {
-            // Handle the SELECT operation
-            sendRequest('GET', `https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
-                if (error) {
-                    responseDiv.innerHTML = "Error: " + error.message;
-                } else {
-                    responseDiv.innerHTML = JSON.stringify(response, null, 2);
-                }
-            }, queryResponseDiv);
-        } else {
-            // Assuming the format for INSERT is ("name", "dateofbirth") or ('name', 'dateofbirth')
-            const parts = sqlQuery.replace(/INSERT INTO patients \(name, dateofbirth\) VALUES /i, "").replace(/[()]/g, "").split(",");
-            if (parts.length === 2) {
-                const name = parts[0].trim().replace(/["']/g, ""); // Remove both double and single quotes
-                const dateofbirth = parts[1].trim().replace(/["']/g, ""); // Remove both double and single quotes
-    
-                if (name && dateofbirth) {
-                    const method = "POST";
-                    const url = "https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/insert";
-    
-                    const data = {
-                        name: name,
-                        dateofbirth: dateofbirth
-                    };
-    
-                    console.log("DATA:", data);
-    
-                    sendRequest(method, url, data, function (error, response, responseDiv) {
-                        if (error) {
-                            responseDiv.innerHTML = "Error: " + error.message;
-                        } else {
-                            responseDiv.innerHTML = JSON.stringify(response, null, 2);
-                        }
-                    }, queryResponseDiv);
-                } else {
-                    queryResponseDiv.innerHTML = "Invalid 'name' or 'dateofbirth' values.";
-                }
-            } else {
-                queryResponseDiv.innerHTML = "Invalid format. Use (\"name\", \"dateofbirth\") or ('name', 'dateofbirth')";
-            }
-        }
-    });
-    
-    });
+              if (name && dateofbirth) {
+                  const method = "POST";
+                  const url = "https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/insert";
+
+                  const data = {
+                      name: name,
+                      dateofbirth: dateofbirth
+                  };
+
+                  console.log("DATA:", data);
+
+                  sendRequest(method, url, data, function (error, response, responseDiv) {
+                      if (error) {
+                          responseDiv.innerHTML = "Error: " + error.message;
+                      } else {
+                          responseDiv.innerHTML = JSON.stringify(response, null, 2);
+                      }
+                  }, queryResponseDiv);
+              } else {
+                  queryResponseDiv.innerHTML = "Invalid 'name' or 'dateofbirth' values.";
+              }
+          } else {
+              queryResponseDiv.innerHTML = "Invalid format. Use (\"name\", \"dateofbirth\") or ('name', 'dateofbirth')";
+          }
+      }
+  });
+});
     
 
   const insertPatientsButton = document.getElementById("insertPatientsButton");
