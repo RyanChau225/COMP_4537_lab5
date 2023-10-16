@@ -24,7 +24,7 @@ async function createPool() {
 createPool();
 
 const corsOptions = {
-  origin: 'http://ceskrfglxz.us14.qoddiapp.com',
+  origin: 'https://ceskrfglxz.us14.qoddiapp.com',
   methods: 'GET,POST',
   allowedHeaders: 'Content-Type'
 };
