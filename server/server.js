@@ -23,13 +23,17 @@ async function createPool() {
 
 createPool();
 
+const corsOptions = {
+  origin: 'https://arch-lab6-client-dfdf06ab41f4.herokuapp.com',
+  methods: 'GET,POST',
+  allowedHeaders: 'Content-Type'
+};
+
+
 // Create an HTTP server
 const server = http.createServer((req, res) => {
     // Use the cors middleware to enable CORS
-    cors()(req, res, () => {
-        res.setHeader('Access-Control-Allow-Origin', 'https://arch-lab6-client-dfdf06ab41f4.herokuapp.com');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    cors(corsOptions)(req, res, () => {
 
         const reqUrl = url.parse(req.url, true);
 
