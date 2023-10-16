@@ -22,56 +22,53 @@
 
 
 
-      // Execute SQL query
       executeButton.addEventListener("click", function () {
-          const sqlQuery = queryInput.value.trim().toUpperCase();
-
-          if (sqlQuery.startsWith('SELECT')) {
-              // Handle the SELECT operation
-
-              sendRequest('GET', `https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
-                  if (error) {
-                      responseDiv.innerHTML = "Errorr: " + error.message;
-                  } else {
-                      responseDiv.innerHTML = JSON.stringify(response, null, 2);
-                  }
-              }, queryResponseDiv);
-
-          } else {
-              // Assuming the format for INSERT is ("name", age)
-              const parts = sqlQuery.replace(/[()]/g, "").split(",");
-              if (parts.length === 2) {
-                  const name = parts[0].trim();
-                  const age = parseInt(parts[1].trim());
-
-                  if (name && !isNaN(age)) {
-                      const method = "POST";
-                      const url = "https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/insert";
-                      console.log("METHOD: " + method);
-
-                      const data = {
-                          name: name,
-                          age: age
-                      };
-
-                      console.log("DATA" + data);
-
-                      sendRequest(method, url, data, function (error, response, responseDiv) {
-                          if (error) {
-                              responseDiv.innerHTML = "Error: " + error.message;
-                          } else {
-                              responseDiv.innerHTML = JSON.stringify(response, null, 2);
-                          }
-                      }, queryResponseDiv);
-                  } else {
-                      queryResponseDiv.innerHTML = "Invalid 'name' or 'age' values. Make sure 'name' is not empty, and 'age' is a valid number.";
-                  }
-              } else {
-                  queryResponseDiv.innerHTML = "Invalid format. Use (\"name\", age)";
-              }
-          }
-      });
-  });
+        const sqlQuery = queryInput.value.trim().toUpperCase();
+    
+        if (sqlQuery.startsWith('SELECT')) {
+            // Handle the SELECT operation
+            sendRequest('GET', `https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/select?query=${encodeURIComponent(sqlQuery)}`, null, function (error, response, responseDiv) {
+                if (error) {
+                    responseDiv.innerHTML = "Error: " + error.message;
+                } else {
+                    responseDiv.innerHTML = JSON.stringify(response, null, 2);
+                }
+            }, queryResponseDiv);
+        } else {
+            // Assuming the format for INSERT is ("name", "dateofbirth")
+            const parts = sqlQuery.replace(/[()]/g, "").split(",");
+            if (parts.length === 2) {
+                const name = parts[0].trim().replace(/"/g, ""); // Removing quotes
+                const dateofbirth = parts[1].trim().replace(/"/g, "");
+    
+                if (name && dateofbirth) {
+                    const method = "POST";
+                    const url = "https://xejzvotuqd.us14.qoddiapp.com/api/v1/sql/insert";
+                    
+                    const data = {
+                        name: name,
+                        dateofbirth: dateofbirth
+                    };
+    
+                    console.log("DATA:", data);
+    
+                    sendRequest(method, url, data, function (error, response, responseDiv) {
+                        if (error) {
+                            responseDiv.innerHTML = "Error: " + error.message;
+                        } else {
+                            responseDiv.innerHTML = JSON.stringify(response, null, 2);
+                        }
+                    }, queryResponseDiv);
+                } else {
+                    queryResponseDiv.innerHTML = "Invalid 'name' or 'dateofbirth' values.";
+                }
+            } else {
+                queryResponseDiv.innerHTML = "Invalid format. Use (\"name\", \"dateofbirth\")";
+            }
+        }
+      });    
+    });
+    
 
   const insertPatientsButton = document.getElementById("insertPatientsButton");
   const insertPatientsResponse = document.getElementById("insertPatientsResponse");
